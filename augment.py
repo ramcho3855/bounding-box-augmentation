@@ -12,7 +12,7 @@ import sys
 
 INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
-AUGMENT_SIZE = 10
+AUGMENT_SIZE = 5
 
 
 def main():
@@ -24,15 +24,19 @@ def main():
     for file in glob.glob('%s/*.xml' % OUTPUT_DIR):
         an.inspect(file)
 
-
+rotate = iaa.Affine(rotate = (-5, 5))
+crop  = iaa.CropAndPad(percent=(-0.02, 0.08),pad_mode=ia.ALL,pad_cval=(0, 255))
+blur = iaa.GaussianBlur((0.5, 2.0))
+bright = iaa.Add((-50,50), per_channel=True)
 def augment(annotation):
     seq = sequence.get()
-
+	
     for i in range(AUGMENT_SIZE):
         filename = annotation['filename']
         sp = filename.split('.')
         outfile = '%s/%s-%02d.%s' % (OUTPUT_DIR, sp[0], i, sp[-1])
 
+		
         seq_det = seq.to_deterministic()
 
         image = cv2.imread('%s/%s' % (INPUT_DIR, annotation['filename']))
